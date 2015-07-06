@@ -1,0 +1,80 @@
+package me.rainbow.utilities;
+
+import java.util.logging.Logger;
+
+import net.milkbowl.vault.economy.Economy;
+import net.minecraft.server.v1_8_R3.BlockPosition;
+import net.minecraft.server.v1_8_R3.IChatBaseComponent;
+import net.minecraft.server.v1_8_R3.IChatBaseComponent.ChatSerializer;
+import net.minecraft.server.v1_8_R3.PacketPlayOutUpdateSign;
+
+import org.bukkit.Material;
+import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.plugin.RegisteredServiceProvider;
+import org.bukkit.plugin.java.JavaPlugin;
+
+public class Core extends JavaPlugin implements Listener {
+
+	Logger log = Logger.getLogger("Minecraft");
+	public static Economy econ = null;
+	public boolean hasVault;
+	
+	@Override
+	public void onEnable() {
+		saveDefaultConfig();
+		if(!setupEconomy()) {
+			hasVault = false;
+		}else {
+			hasVault = true;
+		}
+		getServer().getPluginManager().registerEvents(this, this);
+		log.info(String.format("[%s] %s has been enabled!", getDescription().getName()));
+	}
+	
+	@Override
+	public void onDisable() {
+		
+		log.info(String.format("[%s] %s has been diabled!", getDescription().getName()));
+	}
+	
+	private boolean setupEconomy() {
+        if (getServer().getPluginManager().getPlugin("Vault") == null) {
+            return false;
+        }
+        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+        if (rsp == null) {
+            return false;
+        }
+        econ = rsp.getProvider();
+        return econ != null;
+    }
+	
+	@EventHandler
+	public void onInteract(PlayerInteractEvent e) {
+		
+		if(e.getClickedBlock() == null) return;
+		if(
+				e.getClickedBlock().getType() != Material.SIGN &&
+				e.getClickedBlock().getType() != Material.SIGN_POST &&
+				e.getClickedBlock().getType() != Material.WALL_SIGN
+		) {
+			return;
+		}
+		
+		CraftWorld world = (CraftWorld) e.getClickedBlock().getLocation().getWorld();
+		BlockPosition pos = new BlockPosition(e.getClickedBlock().getX(), e.getClickedBlock().getY(), e.getClickedBlock().getZ());
+		
+		PacketPlayOutUpdateSign packet = new PacketPlayOutUpdateSign(world.getHandle(), pos, new IChatBaseComponent[] {
+			ChatSerializer.a("{\"text\":\"" + e.getPlayer().getName() + "\"}"),
+			null,
+			null,
+			null
+		});
+		
+		((CraftPlayer)e.getPlayer()).getHandle().playerConnection.sendPacket(packet);
+	}
+}

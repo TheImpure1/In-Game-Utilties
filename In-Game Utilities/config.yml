@@ -1,0 +1,4 @@
+#In-Game Utilities Configuration
+
+#Cost for placing a 'FIND PLAYER' sign, if vault is installed
+findPlayerSignCost: 100

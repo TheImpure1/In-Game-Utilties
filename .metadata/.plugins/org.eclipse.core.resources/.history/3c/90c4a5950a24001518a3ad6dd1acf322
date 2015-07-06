@@ -1,0 +1,37 @@
+package me.rainbow.utilities;
+
+import java.util.logging.Logger;
+
+import net.milkbowl.vault.economy.Economy;
+
+import org.bukkit.plugin.RegisteredServiceProvider;
+import org.bukkit.plugin.java.JavaPlugin;
+
+public class Core extends JavaPlugin {
+
+	Logger log = Logger.getLogger("Minecraft");
+	
+	@Override
+	public void onEnable() {
+		saveDefaultConfig();
+		log.info(String.format("[%s] %s has been enabled!", getDescription().getName()));
+	}
+	
+	@Override
+	public void onDisable() {
+		
+		log.info(String.format("[%s] %s has been diabled!", getDescription().getName()));
+	}
+	
+	private boolean setupEconomy() {
+        if (getServer().getPluginManager().getPlugin("Vault") == null) {
+            return false;
+        }
+        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+        if (rsp == null) {
+            return false;
+        }
+        econ = rsp.getProvider();
+        return econ != null;
+    }
+}

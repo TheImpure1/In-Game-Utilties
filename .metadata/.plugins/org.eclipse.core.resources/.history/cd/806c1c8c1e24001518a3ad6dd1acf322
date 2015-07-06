@@ -1,0 +1,15 @@
+name: In-Game_Utilities
+author: _Rainbow_Quartz
+version: 1.0
+main: me.rainbow.gameutilities.Core
+commands:
+
+permissions:
+  gameutilities.*:
+    description: Use all gameutilities commands
+    children:
+      gameutilities.findPlayer:true
+	default:op
+  gameutilities.findPlayer:
+    description: Be able to make a sign to find a player
+    default: true
